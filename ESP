@@ -2,42 +2,6 @@ if not game:IsLoaded() then
 	game.Loaded:Wait()
 end
 
--- Bu değişken, scriptin unload durumunu takip etmek için kullanılır
-local isUnloading = false
-
--- Script unload olduğunda yapılacak işlemleri içeren fonksiyon
-local function onUnload()
-    if isUnloading then
-        return
-    end
-    isUnloading = true
-
-    -- Burada unload işlemleri yapabilirsiniz
-    print("Script unload oldu!")
-
-    -- Eğer burada başka bir unload işlemi yapılacaksa, onları da ekleyebilirsiniz
-
-    isUnloading = false
-end
-
--- Script tekrar çalıştırıldığında yapılacak işlemleri içeren fonksiyon
-local function onReload()
-    if isUnloading then
-        return
-    end
-
-    -- Burada reload işlemleri yapabilirsiniz
-    print("Script tekrar çalıştırıldı!")
-
-    -- Eğer burada başka bir reload işlemi yapılacaksa, onları da ekleyebilirsiniz
-end
-
--- Script unload olduğunda çalışacak kod
-game:BindToClose(onUnload)
-
--- Script tekrar çalıştırıldığında çalışacak kod
-onReload()
-
 
 --//Toggle\\--
 getgenv().Toggle = true -- This toggles the esp, turning it to false will turn it off
