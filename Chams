@@ -1,126 +1,146 @@
-local dwEntities = game:GetService("Players")
-local dwLocalPlayer = dwEntities.LocalPlayer 
-local dwRunService = game:GetService("RunService")
+ustomPlayerTag = function(Player)
+			local Name = '';
 
-local settings_tbl = {
-    ESP_Enabled = true,
-    ESP_TeamCheck = false,
-    Chams = true,
-    Chams_Color = Color3.fromRGB(0,0,255),
-    Chams_Transparency = 0.1,
-    Chams_Glow_Color = Color3.fromRGB(255,0,0)
-}
+			if Player:FindFirstChild'leaderstats' then
+				Name = Name .. '\n[';
+				local Prefix = '';
+				local Extra = {};
+				if Player.leaderstats:FindFirstChild'Prestige' and Player.leaderstats.Prestige.ClassName == 'IntValue' and Player.leaderstats.Prestige.Value > 0 then
+					Name = Name .. '#' .. tostring(Player.leaderstats.Prestige.Value) .. ' ';
+				end
+				if Player.leaderstats:FindFirstChild'HouseRank' and Player.leaderstats:FindFirstChild'Gender' and Player.leaderstats.HouseRank.ClassName == 'StringValue' and not IsStringEmpty(Player.leaderstats.HouseRank.Value) then
+					Prefix = Player.leaderstats.HouseRank.Value == 'Owner' and (Player.leaderstats.Gender.Value == 'Female' and 'Lady ' or 'Lord ') or '';
+				end
+				if Player.leaderstats:FindFirstChild'FirstName' and Player.leaderstats.FirstName.ClassName == 'StringValue' and not IsStringEmpty(Player.leaderstats.FirstName.Value) then
+					Name = Name .. '' .. Prefix .. Player.leaderstats.FirstName.Value;
+				end
+				if Player.leaderstats:FindFirstChild'LastName' and Player.leaderstats.LastName.ClassName == 'StringValue' and not IsStringEmpty(Player.leaderstats.LastName.Value) then
+					Name = Name .. ' ' .. Player.leaderstats.LastName.Value;
+				end
+				if Player.leaderstats:FindFirstChild'UberTitle' and Player.leaderstats.UberTitle.ClassName == 'StringValue' and not IsStringEmpty(Player.leaderstats.UberTitle.Value) then
+					Name = Name .. ', ' .. Player.leaderstats.UberTitle.Value;
+				end
 
-function destroy_chams(char)
+				if not IsStringEmpty(Name) then Name = Name .. ']'; end
 
-    for k,v in next, char:GetChildren() do 
+				local Character = GetCharacter(Player);
 
-        if v:IsA("BasePart") and v.Transparency ~= 1 then
+				if Character then
+					if Character and Character:FindFirstChild'Danger' then table.insert(Extra, 'D'); end
+					if Character:FindFirstChild'ManaAbilities' and Character.ManaAbilities:FindFirstChild'ManaSprint' then table.insert(Extra, 'D1'); end
 
-            if v:FindFirstChild("Glow") and 
-            v:FindFirstChild("Chams") then
+					if Character:FindFirstChild'Mana'	 		then table.insert(Extra, 'M' .. math.floor(Character.Mana.Value)); end
+					if Character:FindFirstChild'Vampirism' 		then table.insert(Extra, 'V');    end
+					if Character:FindFirstChild'Observe'			then table.insert(Extra, 'ILL');  end
+					if Character:FindFirstChild'Inferi'			then table.insert(Extra, 'NEC');  end
+					
+					if Character:FindFirstChild'World\'s Pulse' 	then table.insert(Extra, 'DZIN'); end
+					if Character:FindFirstChild'Head' and Character.Head:FindFirstChild'FacialMarking' then
+						local FM = Character.Head:FindFirstChild'FacialMarking';
+						if FM.Texture == 'http://www.roblox.com/asset/?id=4072968006' then
+							table.insert(Extra, 'HEALER');
+						elseif FM.Texture == 'http://www.roblox.com/asset/?id=4072914434' then
+							table.insert(Extra, 'SEER');
+						elseif FM.Texture == 'http://www.roblox.com/asset/?id=4094417635' then
+							table.insert(Extra, 'JESTER');
+						end
+					end
+				end
+				if Player:FindFirstChild'Backpack' then
+					if Player.Backpack:FindFirstChild'Observe' 			then table.insert(Extra, 'ILL');  end
+					if Player.Backpack:FindFirstChild'Inferi'			then table.insert(Extra, 'NEC');  end
+					if Player.Backpack:FindFirstChild'World\'s Pulse' 	then table.insert(Extra, 'DZIN'); end
+				end
 
-                v.Glow:Destroy()
-                v.Chams:Destroy() 
+				if #Extra > 0 then Name = Name .. ' [' .. table.concat(Extra, '-') .. ']'; end
+			end
 
-            end 
+			return Name;
+		end;
+	};
 
-        end 
+	[4691401390] = { -- Vast Realm
+		CustomCharacter = function(Player)
+			if workspace:FindFirstChild'Players' then
+				return workspace.Players:FindFirstChild(Player.Name);
+			end
+		end
+	};
 
-    end 
+    [6032399813] = { -- Deepwoken [Etrean]
+		CustomPlayerTag = function(Player)
+			local Name = '';
+            CharacterName = Player:GetAttribute'CharacterName'; -- could use leaderstats but lazy
 
-end
+            if not IsStringEmpty(CharacterName) then
+                Name = ('\n[%s]'):format(CharacterName);
+                local Character = GetCharacter(Player);
+                local Extra = {};
 
-dwRunService.Heartbeat:Connect(function()
+                if Character then
+                    local Blood, Armor = Character:FindFirstChild('Blood'), Character:FindFirstChild('Armor');
 
-    if settings_tbl.ESP_Enabled then
-
-        for k,v in next, dwEntities:GetPlayers() do 
-
-            if v ~= dwLocalPlayer then
-
-                if v.Character and
-                v.Character:FindFirstChild("HumanoidRootPart") and 
-                v.Character:FindFirstChild("Humanoid") and 
-                v.Character:FindFirstChild("Humanoid").Health ~= 0 then
-
-                    if settings_tbl.ESP_TeamCheck == false then
-
-                        local char = v.Character 
-
-                        for k,b in next, char:GetChildren() do 
-
-                            if b:IsA("BasePart") and 
-                            b.Transparency ~= 1 then
-                                
-                                if settings_tbl.Chams then
-
-                                    if not b:FindFirstChild("Glow") and
-                                    not b:FindFirstChild("Chams") then
-
-                                        local chams_box = Instance.new("BoxHandleAdornment", b)
-                                        chams_box.Name = "Chams"
-                                        chams_box.AlwaysOnTop = true 
-                                        chams_box.ZIndex = 4 
-                                        chams_box.Adornee = b 
-                                        chams_box.Color3 = settings_tbl.Chams_Color
-                                        chams_box.Transparency = settings_tbl.Chams_Transparency
-                                        chams_box.Size = b.Size + Vector3.new(0.02, 0.02, 0.02)
-
-                                        local glow_box = Instance.new("BoxHandleAdornment", b)
-                                        glow_box.Name = "Glow"
-                                        glow_box.AlwaysOnTop = false 
-                                        glow_box.ZIndex = 3 
-                                        glow_box.Adornee = b 
-                                        glow_box.Color3 = settings_tbl.Chams_Glow_Color
-                                        glow_box.Size = chams_box.Size + Vector3.new(0.13, 0.13, 0.13)
-
-                                    end
-
-                                else
-
-                                    destroy_chams(char)
-
-                                end
-                            
-                            end
-
-                        end
-
-                    else
-
-                        if v.Team == dwLocalPlayer.Team then
-                            destroy_chams(v.Character)
-                        end
-
+                    if Blood and Blood.ClassName == 'DoubleConstrainedValue' then
+                        table.insert(Extra, ('B%d'):format(Blood.Value));
                     end
 
-                else
-
-                    destroy_chams(v.Character)
-
+                    if Armor and Armor.ClassName == 'DoubleConstrainedValue' then
+                        table.insert(Extra, ('A%d'):format(math.floor(Armor.Value / 10)));
+                    end
                 end
 
+                local BackpackChildren = Player.Backpack:GetChildren()
+
+                for index = 1, #BackpackChildren do
+                    local Oath = BackpackChildren[index]
+                    if Oath.ClassName == 'Folder' and Oath.Name:find('Talent:Oath') then
+                        local OathName = Oath.Name:gsub('Talent:Oath: ', '')
+                        table.insert(Extra, OathName);
+                    end
+                end
+
+                if #Extra > 0 then Name = Name .. ' [' .. table.concat(Extra, '-') .. ']'; end
             end
 
-        end
+			return Name;
+		end;
+	};
 
-    else 
+    [5735553160] = { -- Deepwoken [Depths]
+		CustomPlayerTag = function(Player)
+			local Name = '';
+			CharacterName = Player:GetAttribute'CharacterName'; -- could use leaderstats but lazy
 
-        for k,v in next, dwEntities:GetPlayers() do 
+			if not IsStringEmpty(CharacterName) then
+				Name = ('\n[%s]'):format(CharacterName);
+				local Character = GetCharacter(Player);
+				local Extra = {};
 
-            if v ~= dwLocalPlayer and 
-            v.Character and 
-            v.Character:FindFirstChild("HumanoidRootPart") and 
-            v.Character:FindFirstChild("Humanoid") and 
-            v.Character:FindFirstChild("Humanoid").Health ~= 0 then
-                
-                destroy_chams(v.Character)
+				if Character then
+					local Blood, Armor = Character:FindFirstChild('Blood'), Character:FindFirstChild('Armor');
 
-            end
+					if Blood and Blood.ClassName == 'DoubleConstrainedValue' then
+						table.insert(Extra, ('B%d'):format(Blood.Value));
+					end
 
-        end
+					if Armor and Armor.ClassName == 'DoubleConstrainedValue' then
+						table.insert(Extra, ('A%d'):format(math.floor(Armor.Value / 10)));
+					end
+				end
 
-    end
+				local BackpackChildren = Player.Backpack:GetChildren()
 
-end)
+				for index = 1, #BackpackChildren do
+					local Oath = BackpackChildren[index]
+					if Oath.ClassName == 'Folder' and Oath.Name:find('Talent:Oath') then
+						local OathName = Oath.Name:gsub('Talent:Oath: ', '')
+						table.insert(Extra, OathName);
+					end
+				end
+
+				if #Extra > 0 then Name = Name .. ' [' .. table.concat(Extra, '-') .. ']'; end
+			end
+
+			return Name;
+		end;
+	};
