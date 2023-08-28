@@ -1,4 +1,4 @@
-ustomPlayerTag = function(Player)
+customPlayerTag = function(Player)
 			local Name = '';
 
 			if Player:FindFirstChild'leaderstats' then
